@@ -1,20 +1,22 @@
-const CACHE_NAME = 'sse-sw-demo-v1';
-const ASSETS_TO_CACHE = [
+// public/sw.js
+
+const CACHE_NAME = 'visitor-counter-v1';
+const FILES_TO_CACHE = [
     '/',
     '/index.html',
-    '/app.js'
+    '/app.js',
 ];
 
-// Install event: cache essential files
+// Install: cache app shell
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then(cache => cache.addAll(ASSETS_TO_CACHE))
+            .then(cache => cache.addAll(FILES_TO_CACHE))
     );
     self.skipWaiting();
 });
 
-// Activate event: clean up old caches
+// Activate: clean old caches
 self.addEventListener('activate', event => {
     event.waitUntil(
         caches.keys().then(keys =>
@@ -27,10 +29,11 @@ self.addEventListener('activate', event => {
     self.clients.claim();
 });
 
-// Fetch event: cache-first strategy
+// Fetch: cache-first strategy
 self.addEventListener('fetch', event => {
+    if (event.request.method !== 'GET') return;
     event.respondWith(
         caches.match(event.request)
-            .then(cached => cached || fetch(event.request))
+            .then(response => response || fetch(event.request))
     );
 });

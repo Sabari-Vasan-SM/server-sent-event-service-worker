@@ -3,25 +3,25 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>SSE & Service Worker Demo</title>
+    <title>Live Visitor Counter (Offline Ready)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 2em;
+            text-align: center;
+            margin-top: 50px;
         }
 
         #counter {
-            font-size: 2em;
-            margin: 1em 0;
+            font-size: 3em;
+            margin: 20px 0;
         }
 
         #offline-banner {
             display: none;
             background: #ff9800;
             color: #fff;
-            padding: 1em;
-            text-align: center;
+            padding: 10px;
             position: fixed;
             top: 0;
             left: 0;
@@ -32,11 +32,9 @@
 </head>
 
 <body>
-    <h1>Server-Sent Events & Offline Support</h1>
-    <div id="offline-banner">Offline Mode: You are not connected to the server.</div>
-    <div>
-        Live Counter: <span id="counter">0</span>
-    </div>
+    <div id="offline-banner">Offline Mode: Live updates paused</div>
+    <h1>Live Visitor Counter</h1>
+    <div id="counter">0</div>
     <script src="app.js"></script>
 </body>
 
