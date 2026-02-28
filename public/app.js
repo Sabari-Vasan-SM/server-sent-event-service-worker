@@ -27,81 +27,78 @@ function connectSSE() {
             renderGraph();
         }
         if (data.type === 'chat') {
-            renderChat(data.chat);
-        }
-    };
+            // app.js
+            // ---
+            // 1. Connects to SSE endpoint (/events) using EventSource
+            const counterEl = document.getElementById('counter');
+            const offlineBanner = document.getElementById('offline-banner');
+            const userListEl = document.getElementById('user-list');
+            const chatBoxEl = document.getElementById('chat-box');
+            const chatFormEl = document.getElementById('chat-form');
+            const chatInputEl = document.getElementById('chat-input');
+            const resetBtn = document.getElementById('reset-btn');
+            const pauseBtn = document.getElementById('pause-btn');
+            const resumeBtn = document.getElementById('resume-btn');
+            const graphCanvas = document.getElementById('counter-graph');
+            let eventSource;
+            let reconnectTimeout = null;
+            let counterHistory = [];
+            let paused = false;
 
-    eventSource.onerror = () => {
-        if (eventSource) eventSource.close();
-        reconnectTimeout = setTimeout(connectSSE, 2000);
-    };
-}
+            function connectSSE() {
+                eventSource = new EventSource('/events');
 
-function renderUsers(users) {
-    if (!userListEl) return;
-    userListEl.innerHTML = '';
-    users.forEach(u => {
-        const li = document.createElement('li');
-        li.textContent = u.name;
-        userListEl.appendChild(li);
-    });
-}
-eventSource.onerror = () => {
-    function renderChat(chat) {
-        if (!chatBoxEl) return;
-        chatBoxEl.innerHTML = chat.map(msg => `<div><b>${msg.user}:</b> ${msg.message}</div>`).join('');
-        chatBoxEl.scrollTop = chatBoxEl.scrollHeight;
-    }
-    // Try to reconnect after 2 seconds
-    function renderGraph() {
-        if (!graphCanvas) return;
-        const ctx = graphCanvas.getContext('2d');
-        ctx.clearRect(0, 0, graphCanvas.width, graphCanvas.height);
-        ctx.strokeStyle = '#2196f3';
-        ctx.beginPath();
-        let max = Math.max(...counterHistory, 10);
-        let arr = counterHistory.slice(-40);
-        arr.forEach((val, i) => {
-            let x = (i / (arr.length - 1 || 1)) * graphCanvas.width;
-            let y = graphCanvas.height - (val / max) * graphCanvas.height;
-            if (i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-        });
-        ctx.stroke();
-    }
-    if (eventSource) eventSource.close();
-    reconnectTimeout = setTimeout(connectSSE, 2000);
-};
-}
+                eventSource.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'init' || data.type === 'counter') {
+                        counterEl.textContent = data.count;
+                        renderUsers(data.users);
+                        if (!paused) counterHistory.push(data.count);
+                        renderGraph();
+                    }
+                    if (data.type === 'chat') {
+                        renderChat(data.chat);
+                    }
+                };
 
-// Show/hide offline banner and manage SSE connection
-function updateOnlineStatus() {
-    if (navigator.onLine) {
-        offlineBanner.style.display = 'none';
-        // Reconnect SSE if needed
-        if (!eventSource || eventSource.readyState === EventSource.CLOSED) {
-            connectSSE();
-        }
-    } else {
-        offlineBanner.style.display = 'block';
-        // Close SSE connection when offline
-        if (eventSource) eventSource.close();
-    }
-}
+                eventSource.onerror = () => {
+                    if (eventSource) eventSource.close();
+                    reconnectTimeout = setTimeout(connectSSE, 2000);
+                };
+            }
 
-// Chat form handler
-if (chatFormEl) {
-    chatFormEl.addEventListener('submit', function (e) {
-        e.preventDefault();
-        const msg = chatInputEl.value.trim();
-        if (msg) {
-            fetch('/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: msg })
-            }).then(() => {
-                chatInputEl.value = '';
-            });
+            function renderUsers(users) {
+                if (!userListEl) return;
+                userListEl.innerHTML = '';
+                users.forEach(u => {
+                    const li = document.createElement('li');
+                    li.textContent = u.name;
+                    userListEl.appendChild(li);
+                });
+            }
+
+            function renderChat(chat) {
+                if (!chatBoxEl) return;
+                chatBoxEl.innerHTML = chat.map(msg => `<div><b>${msg.user}:</b> ${msg.message}</div>`).join('');
+                chatBoxEl.scrollTop = chatBoxEl.scrollHeight;
+            }
+
+            function renderGraph() {
+                if (!graphCanvas) return;
+                const ctx = graphCanvas.getContext('2d');
+                ctx.clearRect(0, 0, graphCanvas.width, graphCanvas.height);
+                ctx.strokeStyle = '#2196f3';
+                ctx.beginPath();
+                let max = Math.max(...counterHistory, 10);
+                let arr = counterHistory.slice(-40);
+                arr.forEach((val, i) => {
+                    let x = (i / (arr.length - 1 || 1)) * graphCanvas.width;
+                    let y = graphCanvas.height - (val / max) * graphCanvas.height;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+            }
         }
     });
 }

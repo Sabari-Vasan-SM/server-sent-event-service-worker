@@ -34,6 +34,11 @@ self.addEventListener('activate', event => {
 // Fetch event: cache-first strategy
 self.addEventListener('fetch', event => {
     if (event.request.method !== 'GET') return;
+    const url = new URL(event.request.url);
+    // Ignore SSE and API endpoints
+    if (url.pathname.startsWith('/events') || url.pathname.startsWith('/chat') || url.pathname.startsWith('/admin')) {
+        return;
+    }
     event.respondWith(
         caches.match(event.request).then(cached =>
             cached || fetch(event.request).catch(() => {
