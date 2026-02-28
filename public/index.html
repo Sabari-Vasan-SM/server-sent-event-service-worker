@@ -36,6 +36,24 @@
     <div id="offline-banner">Offline Mode: Live updates paused</div>
     <h1>Live Visitor Counter</h1>
     <div id="counter">0</div>
+    <h2>Connected Users</h2>
+    <ul id="user-list"></ul>
+
+    <h2>Chat</h2>
+    <div id="chat-box" style="height:150px;overflow-y:auto;border:1px solid #ccc;margin-bottom:8px;"></div>
+    <form id="chat-form">
+        <input id="chat-input" type="text" placeholder="Type a message..." autocomplete="off" style="width:70%;">
+        <button type="submit">Send</button>
+    </form>
+
+    <h2>Counter History</h2>
+    <canvas id="counter-graph" width="400" height="120" style="border:1px solid #ccc;"></canvas>
+
+    <h2>Admin Controls</h2>
+    <button id="reset-btn">Reset Counter</button>
+    <button id="pause-btn">Pause</button>
+    <button id="resume-btn">Resume</button>
+
     <script src="app.js"></script>
 </body>
 
