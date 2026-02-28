@@ -1,0 +1,9 @@
+{
+    "name": "Live Visitor Counter",
+    "short_name": "VisitorCounter",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "description": "Live counter with offline support using SSE and Service Worker",
+    "icons": []
+}
